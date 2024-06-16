@@ -43,7 +43,7 @@ def find_column_containing_string(search_string, search_range):
     return None
 
 # Read the CSV file
-csv_file = 'C:\\Temp\\RepeatersRaw.CSV'
+csv_file = RawDownload
 uk_repeaters = pd.read_csv(csv_file)
 
 ft5de = []  # List to store rows
