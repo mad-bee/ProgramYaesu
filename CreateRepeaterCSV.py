@@ -1,5 +1,5 @@
 #Create CSV files for import into Yaesus ADMS programme
-#MOMZB
+#Matthew Barker
 #15 June 2024
 
 
@@ -43,11 +43,14 @@ def find_column_containing_string(search_string, search_range):
     return None
 
 # Read the CSV file
-csv_file = RawDownload
+csv_file = 'C:\\Temp\\RepeatersRaw.CSV'
 uk_repeaters = pd.read_csv(csv_file)
 
 ft5de = []  # List to store rows
 ft70d = []  # List to store rows
+ft200d = []  # List to store rows
+ft300d = []  # List to store rows
+
 
 # Initialize row and column indices
 fCurReadRow = 0
@@ -153,6 +156,62 @@ while fCurReadRow < len(uk_repeaters):
                 ]
                 ft70d.append(ft70d_row)
 
+
+
+
+ # FT200
+                ft200d_row = [
+                    fCurMemNumber,
+                    txMHz_value,
+                    rxMHz_value,
+                    "0.00000",
+                    "-/+",
+                    "FM",
+                    "FM" if bAnalog else "DN",        
+                    sRepeaterName,
+                    "TONE SQL" if not pd.isna(uk_repeaters.at[fCurReadRow, 'CTCSS']) else "OFF",
+                    f"{uk_repeaters.at[fCurReadRow, 'CTCSS']} Hz" if not pd.isna(uk_repeaters.at[fCurReadRow, 'CTCSS']) else "",
+                    "023",
+                    "1600 Hz",
+                    "RX 00",
+                    "TX 00",
+                    "HIGH",
+                    "YES",
+                    "12.5KHz",
+                    "ON",
+                    "OFF",
+                    "",
+                    "0"
+                ]
+                ft200d.append(ft200d_row)
+
+# FT300
+                ft300d_row = [
+                    fCurMemNumber,
+                    txMHz_value,
+                    rxMHz_value,
+                    "0.00000",
+                    "-/+",
+                    "FM",
+                    "FM" if bAnalog else "DN",        
+                    sRepeaterName,
+                    "TONE SQL" if not pd.isna(uk_repeaters.at[fCurReadRow, 'CTCSS']) else "OFF",
+                    f"{uk_repeaters.at[fCurReadRow, 'CTCSS']} Hz" if not pd.isna(uk_repeaters.at[fCurReadRow, 'CTCSS']) else "",
+                    "023",
+                    "1600 Hz",
+                    "RX 00",
+                    "TX 00",
+                    "HIGH",
+                    "OFF",
+                    "YES",
+                    "12.5KHz",
+                    "ON",
+                    "OFF",
+                    "",
+                    "0"
+                ]
+                ft300d.append(ft300d_row)
+
                 fCurWriteRow += 1
                 fCurMemNumber += 1
 
@@ -160,6 +219,8 @@ while fCurReadRow < len(uk_repeaters):
 
 # Convert lists to DataFrames
 ft5de_df = pd.DataFrame(ft5de)
+ft200d_df = pd.DataFrame(ft200d)
+ft300d_df = pd.DataFrame(ft300d)
 ft70d_df = pd.DataFrame(ft70d)
 
 # Fill remaining rows
@@ -169,6 +230,19 @@ while fCurMemNumber < 901:
 
     ft5de_df = pd.concat([ft5de_df, pd.DataFrame([ft5de_row])], ignore_index=True)
     ft70d_df = pd.concat([ft70d_df, pd.DataFrame([ft70d_row])], ignore_index=True)
+
+    fCurMemNumber += 1
+    
+    
+fCurMemNumber = 1 
+while fCurMemNumber < 1000:
+    
+    ft300d_row = [fCurMemNumber] + [""] * 20 + ["0"]
+    ft200d_row = [fCurMemNumber] + [""] * 19 + ["0"]   
+    
+
+    ft200d_df = pd.concat([ft200d_df, pd.DataFrame([ft200d_row])], ignore_index=True)
+    ft300d_df = pd.concat([ft300d_df, pd.DataFrame([ft300d_row])], ignore_index=True)
 
     fCurMemNumber += 1
 
@@ -182,6 +256,9 @@ def custom_format(x):
 # Apply custom formatting to the DataFrame
 ft70d_df = ft70d_df.applymap(custom_format)
 ft5de_df = ft5de_df.applymap(custom_format)
+ft200d_df = ft200d_df.applymap(custom_format)
+ft300d_df = ft300d_df.applymap(custom_format)
+
 
 # Process additions (if there are any)
 # Note: Adjust this part based on how you want to handle additions from CSV file
@@ -191,6 +268,9 @@ ft5de_df = ft5de_df.applymap(custom_format)
 # Write to CSV files
 ft5de_df.to_csv('FT5DE_List.csv', index=False, header=False)
 ft70d_df.to_csv('FT70D_List.csv', index=False, header=False)
+ft200d_df.to_csv('FT200D_List.csv', index=False, header=False)
+ft300d_df.to_csv('FT300D_List.csv', index=False, header=False)
+
 
 print("Processing complete. CSV files have been created.")
 
